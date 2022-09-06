@@ -1,14 +1,13 @@
-import React from 'react';
+import useFormAndValidation from 'hooks/useFormAndValidation';
+import React, { useEffect } from 'react';
 import PopupWithForm from './PopupWithForm';
 
 export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
-    const [nameCard, setNameCard] = React.useState('');
-    const [linkCard, setLinkCard] = React.useState('');
+    const { values, handleChange, isErrors, isValid, resetForm } = useFormAndValidation();
 
-    React.useEffect(() => {
-        setNameCard('');
-        setLinkCard('');
-    }, [isOpen]);
+    useEffect(() => {
+        resetForm('');
+    }, [isOpen, resetForm]);
 
     function handleSubmit(e) {
         // Запрещаем браузеру переходить по адресу формы
@@ -16,8 +15,8 @@ export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
         console.log('ho');
         // Передаём значения управляемых компонентов во внешний обработчик
         onAddPlace({
-            name: nameCard,
-            link: linkCard,
+            name: values['card-name'],
+            link: values['card-url'],
         });
     }
     return (
@@ -28,11 +27,12 @@ export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
             onClose={onClose}
             buttonText="Добавить"
             onSubmit={handleSubmit}
+            isDisabled={Object.values(isErrors).some((item) => item)}
         >
             <fieldset className="popup__input-container">
                 <input
-                    value={nameCard || ''}
-                    onChange={(e) => setNameCard(e.target.value)}
+                    value={values['card-name'] || ''}
+                    onChange={handleChange}
                     type="text"
                     className="popup__input popup__input_type_card-title"
                     id="card-name"
@@ -42,10 +42,12 @@ export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
                     maxLength={30}
                     required={true}
                 />
-                <span className="popup__input-error card-name-error" />
+                <span className={`popup__input-error form-name-error ${isValid ? '' : 'popup__input-error_active'}`}>
+                    {isErrors['card-name']}
+                </span>
                 <input
-                    value={linkCard || ''}
-                    onChange={(e) => setLinkCard(e.target.value)}
+                    value={values['card-url'] || ''}
+                    onChange={handleChange}
                     type="url"
                     className="popup__input popup__input_type_card-url"
                     id="card-url"
@@ -53,7 +55,9 @@ export default function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
                     name="card-url"
                     required={true}
                 />
-                <span className="popup__input-error card-url-error" />
+                <span className={`popup__input-error form-name-error ${isValid ? '' : 'popup__input-error_active'}`}>
+                    {isErrors['card-url']}
+                </span>
             </fieldset>
         </PopupWithForm>
     );

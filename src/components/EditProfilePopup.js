@@ -1,17 +1,19 @@
 import { CurrentUserContext } from 'context/CurrentUserContext';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import PopupWithForm from './PopupWithForm';
 
-export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
-    const currentUser = React.useContext(CurrentUserContext);
+import useFormAndValidation from 'hooks/useFormAndValidation';
 
-    const [name, setName] = React.useState(currentUser.name);
-    const [about, setAbout] = React.useState(currentUser.about);
+export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
+    const currentUser = useContext(CurrentUserContext);
+
+    const { values, handleChange, setValues, isErrors, isValid, resetForm } = useFormAndValidation();
 
     useEffect(() => {
-        setName(currentUser.name);
-        setAbout(currentUser.about);
-    }, [currentUser]);
+        if (isOpen) {
+            setValues({ 'profile-name': currentUser.name, 'profile-about': currentUser.about });
+        } else resetForm('');
+    }, [currentUser, isOpen, resetForm, setValues]);
 
     function handleSubmit(e) {
         // Запрещаем браузеру переходить по адресу формы
@@ -19,8 +21,8 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
         console.log('ho');
         // Передаём значения управляемых компонентов во внешний обработчик
         onUpdateUser({
-            name,
-            about: about,
+            name: values['profile-name'],
+            about: values['profile-about'],
         });
     }
 
@@ -32,35 +34,43 @@ export default function EditProfilePopup({ isOpen, onClose, onUpdateUser }) {
             isOpen={isOpen}
             onClose={onClose}
             onSubmit={handleSubmit}
+            isDisabled={Object.values(isErrors).some((item) => item)}
         >
             <fieldset className="popup__input-container">
                 <input
-                    value={name || ''}
-                    onChange={(e) => setName(e.target.value)}
+                    value={values['profile-name'] || ''}
+                    onChange={handleChange}
                     type="text"
                     className="popup__input popup__input_type_name"
-                    id="form-name"
+                    id="profile-name"
                     placeholder="Имя"
-                    name="form-name"
+                    name="profile-name"
                     minLength={2}
                     maxLength={40}
                     required={true}
                 />
-                <span className="popup__input-error form-name-error" />
+                <span className={`popup__input-error form-name-error ${isValid ? '' : 'popup__input-error_active'}`}>
+                    {isErrors['profile-name']}
+                </span>
                 <input
-                    value={about || ''}
-                    onChange={(e) => setAbout(e.target.value)}
+                    value={values['profile-about'] || ''}
+                    onChange={handleChange}
                     type="text"
                     className="popup__input popup__input_type_about"
-                    id="form-about"
+                    id="profile-about"
                     placeholder="О себе"
-                    name="form-about"
+                    name="profile-about"
                     minLength={2}
                     maxLength={200}
                     required={true}
                 />
-                <span className="popup__input-error form-about-error" />
+                <span className={`popup__input-error form-name-error ${isValid ? '' : 'popup__input-error_active'}`}>
+                    {isErrors['profile-about']}
+                </span>
             </fieldset>
         </PopupWithForm>
     );
 }
+
+// isErrors['profile-name']
+// isErrors['profile-about']

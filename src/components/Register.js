@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import AuthForm from './AuthForm.js';
 
 function Register({ onRegister }) {
+    // Здесь по чек листу не могу сделать универсальный onChange из 'useFormAndValidation'
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 

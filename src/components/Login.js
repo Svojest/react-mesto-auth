@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import AuthForm from './AuthForm.js';
 
 function Login({ onLogin }) {
+    // Здесь по чек листу не выйдет сделать универсальный onChange из 'useFormAndValidation'
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 

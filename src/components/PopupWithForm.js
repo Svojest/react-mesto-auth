@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function PopupWithForm({ isOpen, onClose, name, title, buttonText, children, onSubmit }) {
+export default function PopupWithForm({ isOpen, onClose, name, title, buttonText, children, onSubmit, isDisabled }) {
     return (
         <div className={`popup popup_${name} ${isOpen && 'popup_opened'}`}>
             <div className="popup__container">
@@ -8,7 +8,14 @@ export default function PopupWithForm({ isOpen, onClose, name, title, buttonText
                 <form className={`popup__form ${name}`} name={name} onSubmit={onSubmit}>
                     {children}
 
-                    <button type="submit" className="popup__button popup__button_type_save" aria-label="submit">
+                    <button
+                        type="submit"
+                        className={`popup__button popup__button_type_save ${
+                            isDisabled ? 'popup__button_inactive' : ''
+                        }`}
+                        aria-label="submit"
+                        disabled={isDisabled}
+                    >
                         {buttonText}
                     </button>
                     <button

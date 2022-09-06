@@ -1,5 +1,5 @@
 import { CurrentUserContext } from 'context/CurrentUserContext';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 import { auth } from 'utils/auth';
 import { api } from '../utils/api';
@@ -15,22 +15,24 @@ import ProtectedRoute from './ProtectedRoute';
 import Register from './Register';
 
 function App() {
-    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
-    const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
-    const [selectedCard, setSelectedCard] = React.useState(null);
-    const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
+    const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+    const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+    const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+    const [selectedCard, setSelectedCard] = useState(null);
+    const [isTooltipOpen, setIsTooltipOpen] = useState(false);
 
-    const [currentUser, setCurrentUser] = React.useState({});
-    const [cards, setCards] = React.useState([]);
+    const [currentUser, setCurrentUser] = useState({});
+    const [cards, setCards] = useState([]);
 
-    const [email, setEmail] = React.useState('');
+    const [email, setEmail] = useState('');
 
-    const [loggedIn, setLoggedIn] = React.useState(false);
-    const [isSuccess, setIsSuccess] = React.useState(false);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
     const history = useHistory();
 
-    React.useEffect(() => {
+    // Получение с сервера информации о пользователе и карточек
+    useEffect(() => {
         Promise.all([api.getUserInfo(), api.getInitialCards()])
             .then(([userData, userCards]) => {
                 setCurrentUser(userData);
@@ -60,6 +62,7 @@ function App() {
         setSelectedCard(null);
         setIsTooltipOpen(false);
     }
+
     function handleUpdateUser(newUserInfo) {
         api.setUserInfo(newUserInfo)
             .then((res) => {
@@ -147,16 +150,20 @@ function App() {
         localStorage.removeItem('token');
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         const jwt = localStorage.getItem('token');
         if (jwt) {
-            auth.checkToken(jwt).then((res) => {
-                if (res) {
-                    setEmail(res.data.email);
-                    setLoggedIn(true);
-                    history.push('/');
-                }
-            });
+            auth.checkToken(jwt)
+                .then((res) => {
+                    if (res) {
+                        setLoggedIn(true);
+                        setEmail(res.data.email);
+                        history.push('/');
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         }
     }, [email, history]);
 

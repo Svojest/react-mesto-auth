@@ -39,9 +39,7 @@ class Auth {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
-        })
-            .then((res) => res.json())
-            .then((data) => data);
+        }).then(this._checkResponse);
     };
 }
 
